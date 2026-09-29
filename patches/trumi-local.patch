@@ -1,0 +1,124 @@
+diff --git a/pyproject.toml b/pyproject.toml
+index e93e8a9..df662aa 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -10,6 +10,7 @@ dependencies = [
+     "imagecodecs>=2026.3.6",
+     "matplotlib>=3.10.8",
+     "mcap>=1.3.1",
++    "multimethod<2",
+     "opencv-python>=4.13.0.92",
+     "pandas>=3.0.1",
+     "py-gpmf-parser>=0.1.1",
+diff --git a/scripts/scripts_slam_pipeline/06_generate_dataset_plan.py b/scripts/scripts_slam_pipeline/06_generate_dataset_plan.py
+index aae702e..797987e 100644
+--- a/scripts/scripts_slam_pipeline/06_generate_dataset_plan.py
++++ b/scripts/scripts_slam_pipeline/06_generate_dataset_plan.py
+@@ -156,6 +156,19 @@ def get_x_projection(tx_tag_this, tx_tag_other):
+     default=0.8,
+     help="Min joint detection probability to classify a camera as a gripper camera.",
+ )
++@click.option(
++    "--trim_untracked_ends/--no_trim_untracked_ends",
++    default=False,
++    help="Trim each video to its SLAM-tracked span before matching cameras into demos, "
++    "so demos that start (or end) outside the mapped area are kept.",
++)
++@click.option(
++    "--min_tracked_run",
++    type=int,
++    default=30,
++    help="With --trim_untracked_ends: consecutive tracked SLAM frames that mark the "
++    "start/end of the tracked span.",
++)
+ @click.option(
+     "-sfs",
+     "--slam_frame_stride",
+@@ -173,6 +186,8 @@ def main(
+     min_episode_length,
+     ignore_cameras,
+     finger_tag_det_th,
++    trim_untracked_ends,
++    min_tracked_run,
+     slam_frame_stride,
+ ):
+     """Generate dataset_plan.pkl from a processed session directory.
+@@ -296,6 +311,28 @@ def main(
+             duration_sec = float(n_frames / fps)
+             end_timestamp = start_timestamp + duration_sec
+ 
++            # span used to match cameras into demos; start/end_timestamp stay the true
++            # video bounds because frame indices are computed relative to them
++            event_start, event_end = start_timestamp, end_timestamp
++            track_slice = slice(None)
++            if trim_untracked_ends:
++                traj = pd.read_csv(csv_path)
++                tracked = (~traj["is_lost"]).to_numpy()
++                # first/last SLAM frame that begins/ends a run of min_tracked_run tracked frames
++                runs = np.convolve(tracked, np.ones(min_tracked_run, dtype=int), "valid") == min_tracked_run
++                if not runs.any():
++                    logger.info("Ignored %s, never tracked for %d frames", video_dir.name, min_tracked_run)
++                    continue
++                first = int(np.argmax(runs))
++                last = int(len(runs) - 1 - np.argmax(runs[::-1])) + min_tracked_run - 1
++                track_slice = slice(first, last + 1)
++                event_start = start_timestamp + float(traj["timestamp"].iloc[first])
++                event_end = start_timestamp + float(traj["timestamp"].iloc[last])
++                logger.info(
++                    "Trimmed %s to tracked span %.2f-%.2fs of %.2fs",
++                    video_dir.name, event_start - start_timestamp, event_end - start_timestamp, duration_sec,
++                )
++
+             rows.append(
+                 {
+                     "video_dir": video_dir,
+@@ -305,6 +342,9 @@ def main(
+                     "fps": fps,
+                     "start_timestamp": start_timestamp,
+                     "end_timestamp": end_timestamp,
++                    "event_start": event_start,
++                    "event_end": event_end,
++                    "track_slice": track_slice,
+                 }
+             )
+     if len(rows) == 0:
+@@ -332,7 +372,7 @@ def main(
+             {
+                 "vid_idx": vid_idx,
+                 "camera_serial": row["camera_serial"],
+-                "t": row["start_timestamp"],
++                "t": row["event_start"],
+                 "is_start": True,
+             }
+         )
+@@ -340,7 +380,7 @@ def main(
+             {
+                 "vid_idx": vid_idx,
+                 "camera_serial": row["camera_serial"],
+-                "t": row["end_timestamp"],
++                "t": row["event_end"],
+                 "is_start": False,
+             }
+         )
+@@ -537,7 +577,7 @@ def main(
+                 # no tracking data
+                 break
+ 
+-            csv_df = pd.read_csv(csv_path)
++            csv_df = pd.read_csv(csv_path).iloc[row["track_slice"]]
+ 
+             if csv_df["is_lost"].sum() > 10:
+                 # drop episode if too many lost frames
+diff --git a/src/trumi/utils/cv_util.py b/src/trumi/utils/cv_util.py
+index 993a253..71b196a 100644
+--- a/src/trumi/utils/cv_util.py
++++ b/src/trumi/utils/cv_util.py
+@@ -206,7 +206,7 @@ def detect_localize_aruco_tags(
+ 
+     tag_dict = dict()
+     for this_id, this_corners in zip(ids, corners):
+-        this_id = int(this_id[0])
++        this_id = int(np.ravel(this_id)[0])  # ids is (N,1) in OpenCV 4, (N,) in OpenCV 5
+         if this_id not in marker_size_map:
+             continue
+ 

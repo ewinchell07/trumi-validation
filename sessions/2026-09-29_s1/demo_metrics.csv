@@ -1,0 +1,21 @@
+demo,cam,clip,duration,tracked,first_track,slam,jumps_3cm,v95,in_dataset,condition,note
+1,3778,GX010004.MP4,16.4,1.0,0.0,ok,0.079,0.89,True,marker left in,mapping marker accidentally left on the table
+1,0582,GX010008.MP4,16.2,1.0,0.0,ok,0.087,0.49,True,marker left in,mapping marker accidentally left on the table
+2,3778,GX010005.MP4,12.4,1.0,0.0,ok,0.087,0.51,True,normal,
+2,0582,GX010009.MP4,12.4,1.0,0.0,ok,0.049,0.62,True,normal,
+3,0582,GX010010.MP4,13.3,1.0,0.0,ok,0.049,0.92,True,normal,
+3,3778,GX010006.MP4,13.3,1.0,0.0,ok,0.03,0.47,True,normal,
+4,0582,GX010011.MP4,14.2,1.0,0.0,ok,0.11,1.03,True,normal,
+4,3778,GX010007.MP4,14.3,1.0,0.0,ok,0.082,0.86,True,normal,
+5,0582,GX010012.MP4,14.1,1.0,0.0,ok,0.101,0.87,True,normal,
+5,3778,GX010008.MP4,14.0,1.0,0.0,ok,0.031,0.78,True,normal,
+6,0582,GX010013.MP4,11.9,1.0,0.0,ok,0.098,0.9,True,normal,
+6,3778,GX010009.MP4,12.0,1.0,0.0,ok,0.087,1.11,True,normal,
+7,0582,GX010014.MP4,11.3,1.0,0.0,ok,0.08,0.71,True,normal,
+7,3778,GX010010.MP4,11.3,1.0,0.0,ok,0.099,1.37,True,normal,
+8,0582,GX010015.MP4,11.6,1.0,0.0,ok,0.115,1.01,True,normal,
+8,3778,GX010011.MP4,10.3,1.0,0.0,ok,0.08,0.59,True,normal,
+9,0582,GX010016.MP4,5.5,1.0,0.0,ok,0.18,1.27,True,stress: fast/jerky,deliberately fast and jerky motion
+9,3778,GX010012.MP4,5.5,1.0,0.0,ok,0.207,1.45,True,stress: fast/jerky,deliberately fast and jerky motion
+10,0582,GX010017.MP4,,0.0,,no trajectory (SLAM gave up or timed out),,,False,stress: off-map start,deliberately started facing the wrong direction
+10,3778,GX010013.MP4,,0.0,,no trajectory (SLAM gave up or timed out),,,False,stress: off-map start,deliberately started facing the wrong direction

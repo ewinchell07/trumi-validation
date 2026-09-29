@@ -1,0 +1,297 @@
+<title>TRumi Validation Record</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Same system as the session's test plan: Plex family, teal accent, green-grey neutrals. */
+:root {
+  --bg: #f2f4f2; --surface: #ffffff; --ink: #1b2226; --muted: #58646a; --line: #d3d9d7;
+  --accent: #0d6883; --accent-soft: #e1eef2; --mark: #e3ae14; --mark-soft: #fbf1d3;
+  --ok: #2b7a4b; --ok-soft: #dcefe3; --warn: #9c6512; --warn-soft: #f6e7cf; --bad: #b3261e; --bad-soft: #f6dcd9;
+  --hung: #c9d0ce; --code-bg: #e9ecea;
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101518; --surface: #172026; --ink: #e2e8ea; --muted: #97a4aa; --line: #2a363c;
+    --accent: #62b8d3; --accent-soft: #15303a; --mark: #f0c33c; --mark-soft: #3a3013;
+    --ok: #6cc28e; --ok-soft: #173325; --warn: #e2aa4f; --warn-soft: #3a2c14; --bad: #f07b70; --bad-soft: #3d1c1a;
+    --hung: #2f3a40; --code-bg: #0b1013; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101518; --surface: #172026; --ink: #e2e8ea; --muted: #97a4aa; --line: #2a363c;
+  --accent: #62b8d3; --accent-soft: #15303a; --mark: #f0c33c; --mark-soft: #3a3013;
+  --ok: #6cc28e; --ok-soft: #173325; --warn: #e2aa4f; --warn-soft: #3a2c14; --bad: #f07b70; --bad-soft: #3d1c1a;
+  --hung: #2f3a40; --code-bg: #0b1013; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 15.5px/1.6 var(--font-body); }
+.wrap { max-width: 900px; margin: 0 auto; padding-inline: 20px; padding-block: 32px 72px; display: flex; flex-direction: column; gap: 44px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 2.7rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.55rem; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+a { color: var(--accent); text-underline-offset: 2px; }
+code { font-family: var(--font-mono); font-size: 0.86em; background: var(--code-bg); padding: 0.08em 0.35em; border-radius: 4px; overflow-wrap: anywhere; }
+.eyebrow { font: 500 0.78rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); }
+.muted { color: var(--muted); }
+section { display: flex; flex-direction: column; gap: 16px; }
+.section-head { display: flex; flex-direction: column; gap: 6px; border-top: 2px solid var(--ink); padding-top: 14px; }
+header { display: flex; flex-direction: column; gap: 14px; }
+.lede { font-size: 1.08rem; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 0.8rem/1 var(--font-mono); border: 1px solid var(--line); background: var(--surface); padding: 7px 10px; border-radius: 999px; }
+
+/* verdict: two outcomes side by side */
+.verdict { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.outcome { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--ok); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.outcome.bad { border-top-color: var(--bad); }
+.outcome .big { font: 700 2.3rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.outcome .big small { font: 500 0.95rem/1 var(--font-body); color: var(--muted); margin-left: 6px; }
+
+.note { border: 1px solid var(--line); border-left: 4px solid var(--mark); background: var(--mark-soft); padding: 12px 14px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
+.note.info { border-left-color: var(--accent); background: var(--accent-soft); }
+
+/* findings list */
+ol.findings { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; counter-reset: f; }
+ol.findings li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; counter-increment: f; }
+ol.findings li::before { content: counter(f); font: 600 0.85rem/1 var(--font-mono); color: var(--accent); border: 1px solid var(--accent); border-radius: 50%; width: 26px; height: 26px; display: grid; place-items: center; margin-top: 1px; }
+ol.findings li > div { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.conf { font: 600 0.68rem/1 var(--font-mono); letter-spacing: .05em; text-transform: uppercase; padding: 3px 6px; border-radius: 4px; border: 1px solid currentColor; width: fit-content; }
+.conf.hi { color: var(--ok); } .conf.med { color: var(--warn); } .conf.lo { color: var(--muted); }
+
+/* tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+th { font: 600 0.72rem/1.3 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: 0; }
+td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* tracking grid: 2 cameras x 20 demos, grouped by belt speed */
+.grid-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+.tgrid { display: grid; grid-template-columns: 92px repeat(4, minmax(150px, 1fr)); gap: 6px 12px; min-width: 700px; align-items: center; }
+.tgrid .speed { font: 600 0.75rem/1.2 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); border-bottom: 2px solid var(--line); padding-bottom: 4px; }
+.tgrid .rowlabel { font: 500 0.78rem/1.25 var(--font-mono); color: var(--muted); }
+.cells { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.c { height: 40px; border-radius: 4px; display: grid; place-items: center; font: 600 0.72rem/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.c.h { background: repeating-linear-gradient(135deg, var(--hung) 0 4px, transparent 4px 8px); color: var(--muted); border: 1px solid var(--hung); }
+.c.p { background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn); }
+.c.f { background: var(--ok); color: var(--surface); }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 0.85rem; color: var(--muted); margin-top: 12px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 18px; height: 14px; border-radius: 3px; display: inline-block; }
+
+figure { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+figure img { width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--line); display: block; background: #000; }
+figcaption { font-size: 0.83rem; color: var(--muted); line-height: 1.45; max-width: 80ch; }
+
+ul.plain { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 6px; }
+dl.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; font-size: 0.92rem; }
+dl.kv dt { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); padding-top: 2px; }
+dl.kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 560px) { dl.kv { grid-template-columns: 1fr; } dl.kv dd { margin-bottom: 6px; } }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Experiment record · Tuesday 29 Sep 2026 · Titus RTX 5090 laptop</span>
+  <h1>TRumi Validation Record</h1>
+  <p class="lede">We took two Trossen TRumi handheld grippers from box to processed dataset, then tried them on a conveyor-belt pick-and-place at four belt speeds. The pipeline works on a static tabletop. On the conveyor, visual SLAM lost the camera pose in almost every demo, and the cause is not yet isolated.</p>
+  <div class="meta">
+    <span class="chip">2 grippers · bimanual</span>
+    <span class="chip">GoPro HERO13 Black ×2 · Labs fw 2.10.70</span>
+    <span class="chip">2.7K 4:3 · 119.88 fps</span>
+    <span class="chip">TRumi @ 8b916b9 + local patch</span>
+  </div>
+</header>
+
+<section id="verdict">
+  <div class="verdict">
+    <div class="outcome">
+      <span class="eyebrow">Session 1 · static tabletop</span>
+      <div class="big">9<small>episodes from 10 demos</small></div>
+      <p>Every clip tracked on every frame. The one deliberate off-map start was dropped, as it should be. The deliberately jerky demo was <em>kept</em>: nothing in the pipeline flags it.</p>
+    </div>
+    <div class="outcome bad">
+      <span class="eyebrow">Session 2 · conveyor, 4 belt speeds</span>
+      <div class="big">3<small>single-arm episodes from 20 bimanual demos</small></div>
+      <p>28 of 40 camera clips never produced a trajectory, and most of the rest tracked 14–32% of frames. Belt speed made no visible difference. Two clips tracked perfectly, every time we ran them.</p>
+    </div>
+  </div>
+</section>
+
+<section id="findings">
+  <div class="section-head">
+    <span class="eyebrow">Findings</span>
+    <h2>What we learned</h2>
+  </div>
+  <ol class="findings">
+    <li><div><strong>The capture and processing chain works end to end on a static scene.</strong>
+      <span>Camera settings, IMU, finger-tag detection (99–100%), two-camera timecode sync (pairs start 0.03–0.15 s apart), gripper calibration (the two grippers agree to 0.6 mm) and MCAP output all check out.</span>
+      <span class="conf hi">High confidence</span></div></li>
+    <li><div><strong>SLAM on the conveyor setup fails in a way belt speed does not explain.</strong>
+      <span>Tracking was poor at 20, 40, 60 and 80 alike. The two clips that tracked 100% were at 40 and 80.</span>
+      <span class="conf med">Medium: 5 demos per speed</span></div></li>
+    <li><div><strong>This ORB-SLAM3 build breaks when it has to re-find the map mid-clip.</strong>
+      <span>After relocalizing, it compares demo timestamps with the mapping video's keyframes (about −1,716 s apart), computes a velocity of about 2,500 m/s, then either flickers between tracked and lost or hangs. One finished clip relocalized 218 times in about 18 s. Standard UMI practice never exercises this path, because demos start looking at the mapped area.</span>
+      <span class="conf hi">High: seen in the SLAM logs</span></div></li>
+    <li><div><strong>Starting clips on the map does not fix it (test 1).</strong>
+      <span>With the second map, most clips already recognized the map in their first 1–2 frames. Trimming 8 clips to start at that moment made all 8 hang, including 3 that had tracked 27–32% before.</span>
+      <span class="conf hi">High</span></div></li>
+    <li><div><strong>The two perfect clips are reproducible, and we can't yet say why they differ.</strong>
+      <span>Camera 3778 on demos 10 and 20 tracked 100% on three separate runs. Their frames look like the failed takes (same start at the robot station, same pick, same place, same people walking around).</span>
+      <span class="conf med">Medium: open question</span></div></li>
+    <li><div><strong>Even good tabletop tracking is jumpier than Trossen's reference.</strong>
+      <span>In our session 1 demos, 3–12% of frame-to-frame steps jump more than 3 cm. Trossen's example has 0.2–0.6%. The jump rate does single out the fast/jerky demo (18–21%), so it could become an automatic quality filter.</span>
+      <span class="conf med">Medium</span></div></li>
+  </ol>
+</section>
+
+<section id="s2">
+  <div class="section-head">
+    <span class="eyebrow">Session 2 · conveyor</span>
+    <h2>Tracking by demo and belt speed</h2>
+    <p class="muted">Each cell is one camera clip, localized against the second map (89.7 s, 96 keyframes, 98% of the mapping video tracked). The number is the share of SLAM frames with a pose.</p>
+  </div>
+  <div class="grid-wrap">
+    <div class="tgrid" id="tgrid" aria-label="Tracking grid: rows are cameras, columns are 20 demos grouped by belt speed"></div>
+    <div class="legend">
+      <span><i style="background:var(--ok)"></i>Tracked 100%</span>
+      <span><i style="background:var(--warn-soft);border:1px solid var(--warn)"></i>Partial (share of frames)</span>
+      <span><i style="background:repeating-linear-gradient(135deg,var(--hung) 0 4px,transparent 4px 8px);border:1px solid var(--hung)"></i>No trajectory: SLAM hung after relocalizing</span>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Attempt</th><th>Map</th><th>Setting</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Map 1</td><td class="num">70.5 s · 65 KF</td><td>Default pipeline</td><td>Demos start off-map for 3–5 s, so the default limit would drop them. Four clips tested with the limit off: two tracked 15–19% and two timed out.</td></tr>
+        <tr><td>Map 2 (re-recorded)</td><td class="num">89.7 s · 96 KF</td><td>Lost-frame limit off, new trim option, 60× timeout</td><td>Jobs hung after relocalizing and sat idle until the timeout (load average 0.2).</td></tr>
+        <tr><td>Map 2, short timeout</td><td class="num">same</td><td>8× timeout</td><td>12 of 40 clips produced a trajectory: 2 at 100%, 10 at 14–32%. The grid above.</td></tr>
+        <tr><td>Test 1: start on map</td><td class="num">same</td><td>8 clips trimmed to their first map recognition</td><td>8 of 8 hung.</td></tr>
+        <tr><td>Repeatability</td><td class="num">same</td><td>2 perfect clips rerun ×2</td><td>100% both times.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Dataset output: 3 episodes of gripper 0 only (1.8 s, 14.0 s and 12.4 s long; 2.4 GB). Gripper 0 stays open throughout (81–83 mm) because the other hand did the grasping. These episodes are a salvage, not usable bimanual data.</p>
+  <figure>
+    <img src="img/qc_tracked_vs_hung.jpg" alt="Four rows of fisheye frames from camera 3778: demo 10 and demo 20 tracked fully, demos 9 and 19 hung; all show the same robot station, table pick and box placement">
+    <figcaption>Camera 3778, frames at 10/40/70/95% of each clip. Rows 1 and 3 tracked 100%; rows 2 and 4 hung. The takes look alike, so scene content alone doesn't separate them.</figcaption>
+  </figure>
+  <figure>
+    <img src="img/qc_scene.jpg" alt="Top row: frames from the first mapping video, mostly one viewpoint in front of the conveyor. Bottom row: demo 20, which turns to an unmapped table behind the operator">
+    <figcaption>First map (top) against demo 20 (bottom). The first map covered one viewpoint; the demo turns to a table the map never saw. The second map added the pick-up spots.</figcaption>
+  </figure>
+</section>
+
+<section id="s1">
+  <div class="section-head">
+    <span class="eyebrow">Session 1 · tabletop</span>
+    <h2>Baseline and stress demos</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Check</th><th>Result</th><th>Trossen example</th></tr></thead>
+      <tbody>
+        <tr><td>Mapping video tracked</td><td class="num">95%</td><td class="num">98%</td></tr>
+        <tr><td>Gripper range, G0 / G1</td><td class="num">42.0–124.2 / 42.0–123.6 mm</td><td class="num">66.9–123.6 mm</td></tr>
+        <tr><td>Finger tags seen</td><td class="num">99–100%</td><td class="num">63–100%</td></tr>
+        <tr><td>Lost frames per kept demo</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>Pose jumps &gt; 3 cm, normal demos</td><td class="num">3–12%</td><td class="num">0.2–0.6%</td></tr>
+        <tr><td>Pose jumps &gt; 3 cm, fast/jerky demo</td><td class="num">18–21%</td><td class="num">–</td></tr>
+        <tr><td>Episodes</td><td class="num">9 of 10 · 18 GB MCAP</td><td class="num">2 of 2</td></tr>
+        <tr><td>Processing time</td><td class="num">22 min</td><td class="num">7 min</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="plain">
+    <li><strong>Demo 1</strong> had the mapping marker left on the table. It tracked fine; exclude it from training if you want clean images.</li>
+    <li><strong>Demo 9</strong> (fast/jerky) was kept by the pipeline. Exclude it by hand, or filter on jump rate.</li>
+    <li><strong>Demo 10</strong> (started facing away) never localized and was dropped. Correct.</li>
+  </ul>
+  <figure>
+    <img src="img/qc_frames.jpg" alt="Three fisheye frames side by side: Trossen's reference, camera 3778 and camera 0582, all showing the same full fisheye circle and finger tags at the bottom">
+    <figcaption>Smoke test: Trossen's reference frame beside both cameras. Same fisheye circle, which confirms Lens Mod set to Standard (no in-camera correction).</figcaption>
+  </figure>
+</section>
+
+<section id="next">
+  <div class="section-head">
+    <span class="eyebrow">Next</span>
+    <h2>What to do before collecting at scale</h2>
+  </div>
+  <ol class="findings">
+    <li><div><strong>Belt-off control.</strong> <span>Record 5 demos in the same scene with the belt stopped. Good tracking would implicate the moving belt; bad tracking would implicate the scene or the SLAM build.</span></div></li>
+    <li><div><strong>Point at the workspace before pressing record.</strong> <span>It avoids the mid-clip relocalization path entirely. Cheap to adopt now.</span></div></li>
+    <li><div><strong>Fix or bypass the relocalization bug.</strong> <span>The −1,716 s keyframe offset points at IMU preintegration across the map/demo time gap. Resetting the IMU state on relocalization, or relocalizing visual-only, would be the first things to try in <code>gopro_slam.cc</code>.</span></div></li>
+    <li><div><strong>Find what's different about demos 10 and 20 on camera 3778.</strong> <span>Compare per-frame feature counts and IMU traces against their failed neighbours.</span></div></li>
+    <li><div><strong>Add jump rate to the session report</strong> <span>as a warning, so fast or jittery demos are flagged automatically.</span></div></li>
+  </ol>
+</section>
+
+<section id="setup">
+  <div class="section-head">
+    <span class="eyebrow">Setup log</span>
+    <h2>Problems hit on the day, and fixes</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Problem</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Settings QR code wouldn't scan</td><td>Both cameras shipped on stock firmware (H24.01.02.10.00). Installed Labs 2.10.70 through the laptop's SD slot. The GoPro's USB file access is read/delete only.</td></tr>
+        <tr><td>Old QR image hard to read on screen</td><td>Regenerated as a sharp 33×33 code from the same command string, with a full-screen view. Scan with the Lens Mod off.</td></tr>
+        <tr><td>Pipeline couldn't reach Docker</td><td>A group membership predated the login session. <code>process_session.sh</code> re-executes under <code>sg docker</code>. A reboot fixed it permanently.</td></tr>
+        <tr><td><code>check_clip.py</code> reported false FAILs with two grippers</td><td>It now works out which gripper each camera belongs to and grades only that pair.</td></tr>
+        <tr><td>Smoke-test clips left on the cards</td><td>Excluded by hand. They would have been taken as the gripper calibrations.</td></tr>
+        <tr><td>Demos started off-map</td><td>New <code>--trim_untracked_ends</code> in step 06 (<code>TRIM=1</code>). It works as designed, but most clips failed later anyway.</td></tr>
+        <tr><td>SLAM hangs held the run for an hour</td><td>Configurable timeout (<code>TIMEOUT_MULT</code>). Hung clips are cut off in about 2 minutes.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="data">
+  <div class="section-head">
+    <span class="eyebrow">Data and code</span>
+    <h2>Where everything is</h2>
+  </div>
+  <dl class="kv">
+    <dt>Code</dt><dd><a href="https://github.com/ewinchell07/trumi-validation" target="_blank" rel="noopener">github.com/ewinchell07/trumi-validation</a> (private): tools, analysis, TRumi patch, test plan and this record</dd>
+    <dt>Processed data</dt><dd><a href="https://huggingface.co/datasets/ewinchell07/trumi-validation-2026-09-29" target="_blank" rel="noopener">huggingface.co/datasets/ewinchell07/trumi-validation-2026-09-29</a> (private): MCAP episodes, dataset plans, calibrations, per-demo metrics</dd>
+    <dt>Raw clips</dt><dd>Laptop only: <code>~/trumi_sessions/</code>. 68 GoPro clips, verified against both cards by serial and byte size.</dd>
+    <dt>Test plan</dt><dd><code>test-plan/index.html</code> in the repo</dd>
+    <dt>Cameras</dt><dd>C3534250043778 → gripper 0 (tags 0/1) · C3535424690582 → gripper 1 (tags 6/7)</dd>
+  </dl>
+</section>
+
+</div>
+
+<script>
+// session 2 tracked share per clip, demo 1-20; -1 = no trajectory (hung). From sessions/2026-09-29_s2/demo_metrics.csv
+var T = {
+  "3778": [-1,.271,.309,-1,-1, .158,.318,-1,-1,1, -1,-1,-1,-1,-1, -1,-1,.151,-1,1],
+  "0582": [-1,-1,-1,-1,-1, .27,-1,-1,.314,.23, -1,.297,-1,-1,-1, -1,.142,-1,-1,-1]
+};
+var labels = {"3778": "Cam 3778<br>gripper 0", "0582": "Cam 0582<br>gripper 1"};
+var g = document.getElementById("tgrid"), html = '<div></div>';
+[20, 40, 60, 80].forEach(function (s, i) { html += '<div class="speed">Belt ' + s + ' · demos ' + (i * 5 + 1) + '–' + (i * 5 + 5) + '</div>'; });
+Object.keys(T).forEach(function (cam) {
+  html += '<div class="rowlabel">' + labels[cam] + '</div>';
+  for (var b = 0; b < 4; b++) {
+    html += '<div class="cells">';
+    for (var k = 0; k < 5; k++) {
+      var d = b * 5 + k, v = T[cam][d], cls = v < 0 ? "h" : (v >= 0.99 ? "f" : "p");
+      var txt = v < 0 ? "–" : Math.round(v * 100) + "%";
+      html += '<div class="c ' + cls + '" title="Demo ' + (d + 1) + ', camera ' + cam + ': ' + (v < 0 ? "no trajectory" : txt + " tracked") + '">' + txt + '</div>';
+    }
+    html += '</div>';
+  }
+});
+g.innerHTML = html;
+</script>

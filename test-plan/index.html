@@ -1,0 +1,504 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>TRumi Validation Session</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: one reading column; timed blocks use a left time gutter that stacks on phones. */
+:root {
+  --bg: #f2f4f2;
+  --surface: #ffffff;
+  --ink: #1b2226;
+  --muted: #58646a;
+  --line: #d3d9d7;
+  --accent: #0d6883;
+  --accent-soft: #e1eef2;
+  --mark: #e3ae14;
+  --mark-soft: #fbf1d3;
+  --ok: #2b7a4b;
+  --warn: #9c6512;
+  --bad: #b3261e;
+  --code-bg: #e9ecea;
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101518; --surface: #172026; --ink: #e2e8ea; --muted: #97a4aa; --line: #2a363c;
+    --accent: #62b8d3; --accent-soft: #15303a; --mark: #f0c33c; --mark-soft: #3a3013;
+    --ok: #6cc28e; --warn: #e2aa4f; --bad: #f07b70; --code-bg: #0b1013; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101518; --surface: #172026; --ink: #e2e8ea; --muted: #97a4aa; --line: #2a363c;
+  --accent: #62b8d3; --accent-soft: #15303a; --mark: #f0c33c; --mark-soft: #3a3013;
+  --ok: #6cc28e; --warn: #e2aa4f; --bad: #f07b70; --code-bg: #0b1013; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 15.5px/1.6 var(--font-body); }
+.wrap { max-width: 860px; margin: 0 auto; padding-inline: 20px; padding-block: 32px 72px; display: flex; flex-direction: column; gap: 44px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 2.7rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.55rem; }
+h3 { font-size: 1.12rem; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--accent); text-underline-offset: 2px; }
+code, kbd { font-family: var(--font-mono); font-size: 0.88em; background: var(--code-bg); padding: 0.08em 0.35em; border-radius: 4px; }
+.eyebrow { font: 500 0.78rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); }
+.muted { color: var(--muted); }
+section { display: flex; flex-direction: column; gap: 16px; }
+.section-head { display: flex; flex-direction: column; gap: 6px; border-top: 2px solid var(--ink); padding-top: 14px; }
+
+/* header */
+header { display: flex; flex-direction: column; gap: 14px; }
+.lede { font-size: 1.08rem; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 0.8rem/1 var(--font-mono); border: 1px solid var(--line); background: var(--surface); padding: 7px 10px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+.progress { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font: 500 0.85rem/1.3 var(--font-mono); }
+.bar { flex: 1 1 200px; height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; min-width: 0; }
+.bar > span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+button { font: 500 0.8rem/1 var(--font-mono); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* callouts */
+.note { border: 1px solid var(--line); border-left: 4px solid var(--mark); background: var(--mark-soft); padding: 12px 14px; border-radius: 6px; display: flex; flex-direction: column; gap: 6px; }
+.note.info { border-left-color: var(--accent); background: var(--accent-soft); }
+.note strong { font-weight: 600; }
+
+/* checklists */
+ul.check { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+ul.check > li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; }
+ul.check > li > div { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+ul.check input[type=checkbox] { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--accent); cursor: pointer; }
+ul.check label { cursor: pointer; }
+ul.check li.done label { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+.sub { color: var(--muted); font-size: 0.93rem; }
+
+/* two-column print & pack */
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+/* timed blocks */
+.block { display: grid; grid-template-columns: 96px 1fr; gap: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+.block > .time { display: flex; flex-direction: column; gap: 4px; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.block > .time .letter { font: 700 2.1rem/1 var(--font-display); color: var(--accent); }
+.block > .time .range { font-size: 0.82rem; color: var(--muted); }
+.block > .body { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+@media (max-width: 620px) { .block { grid-template-columns: 1fr; gap: 10px; } .block > .time { flex-direction: row; align-items: baseline; gap: 10px; } }
+
+/* commands */
+.cmd { position: relative; background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+.cmd pre { margin: 0; padding: 12px 14px; padding-right: 64px; overflow-x: auto; font: 400 0.82rem/1.55 var(--font-mono); white-space: pre; }
+.cmd pre .c { color: var(--muted); }
+.cmd button { position: absolute; top: 6px; right: 6px; padding: 5px 8px; font-size: 0.72rem; }
+
+/* images */
+.figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+figure img { width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--line); display: block; background: #000; }
+figcaption { font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+.qr-row { display: flex; flex-direction: column; gap: 14px; }
+.qr { display: block; width: min(100%, 600px); padding: 0; background: #fff; border: 1px solid var(--line); border-radius: 8px; cursor: zoom-in; overflow: hidden; }
+.qr img { display: block; width: 100%; height: auto; image-rendering: pixelated; background: #fff; }
+.qr-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.qr-actions button { font-size: 0.9rem; padding: 10px 14px; border-color: var(--accent); color: var(--accent); }
+/* Full-screen view: always white, whatever the theme, so the GoPro sees maximum contrast. */
+.qr-full { position: fixed; inset: 0; z-index: 1000; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 8px; cursor: zoom-out; }
+.qr-full img { width: min(98vw, calc(98vh - 36px)); height: auto; image-rendering: pixelated; }
+.qr-full p { margin: 0; color: #58646a; font: 500 0.85rem/1.2 var(--font-mono); }
+
+/* tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+th { font: 600 0.74rem/1.3 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: 0; }
+td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.log td { height: 34px; }
+.log td:first-child { font-family: var(--font-mono); color: var(--muted); width: 38px; }
+.pill { display: inline-block; font: 600 0.7rem/1 var(--font-mono); padding: 3px 6px; border-radius: 4px; letter-spacing: .04em; }
+.pill.ok { color: var(--ok); border: 1px solid var(--ok); }
+.pill.warn { color: var(--warn); border: 1px solid var(--warn); }
+.pill.bad { color: var(--bad); border: 1px solid var(--bad); }
+
+dl.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; font-size: 0.92rem; }
+dl.kv dt { font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted); }
+dl.kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 520px) { dl.kv { grid-template-columns: 1fr; } dl.kv dd { margin-bottom: 6px; } }
+
+@media (prefers-reduced-motion: reduce) { .bar > span { transition: none; } }
+@media print {
+  .wrap { gap: 22px; padding-block: 0; } .progress, .cmd button { display: none; }
+  .block, .panel, .table-wrap { break-inside: avoid; }
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Hardware validation · Tuesday 29 Sep 2026</span>
+  <h1>TRumi Validation Session</h1>
+  <p class="lede">Two hours to take the TRumi from box to a processed dataset. You'll finish with one recording session that passes every check in the pipeline report, and one deliberate bad take so you know what failure looks like.</p>
+  <div class="meta">
+    <span class="chip">120 min</span>
+    <span class="chip">1 gripper · 2nd optional</span>
+    <span class="chip">GoPro HERO13 Black</span>
+    <span class="chip">Processing: RTX box</span>
+  </div>
+  <div class="progress" aria-live="polite">
+    <span id="progress-text">0 of 0 steps checked</span>
+    <div class="bar" aria-hidden="true"><span id="progress-bar"></span></div>
+    <button type="button" id="reset">Clear checks</button>
+  </div>
+</header>
+
+<section id="tonight">
+  <div class="section-head">
+    <span class="eyebrow">Tonight · 15 min</span>
+    <h2>Before the session</h2>
+  </div>
+  <ul class="check">
+    <li><input type="checkbox" id="t-fw"><div><label for="t-fw">Download GoPro Labs firmware for HERO13 Black (v2.10.70) from <a href="https://gopro.github.io/labs/" target="_blank" rel="noopener">gopro.github.io/labs</a>. Unzip it and copy the whole <code>UPDATE</code> folder to the root of the microSD card.</label><span class="sub">Doing this tonight saves about 10 minutes tomorrow. Trossen's example footage was shot on Labs firmware H24.01.02.10.70, which is this version.</span></div></li>
+    <li><input type="checkbox" id="t-batt"><div><label for="t-batt">Charge every GoPro battery. The firmware update needs at least 50%.</label></div></li>
+    <li><input type="checkbox" id="t-print"><div><label for="t-print">Print what's listed below under <a href="#print">Print &amp; pack</a>.</label></div></li>
+    <li><input type="checkbox" id="t-rtx"><div><label for="t-rtx">Confirm the RTX box answers and the tools are in place.</label>
+      <div class="cmd"><pre>ssh ethanwinchell@ethanwinchell.tail79141c.ts.net 'docker images orb_slam3 --format "image ok: {{.Repository}}"; ls ~/trumi_tools; df -h ~ | tail -1'</pre><button type="button" class="copy">Copy</button></div>
+      <span class="sub">Expect <code>image ok: orb_slam3</code>, three tool files, and at least 20 GB free. MCAP output runs about 75 MB per second of demo footage, so 10 demos of 8 s come to roughly 6 GB.</span></div></li>
+  </ul>
+</section>
+
+<section id="print">
+  <div class="section-head">
+    <span class="eyebrow">Print &amp; pack</span>
+    <h2>What to have on the table</h2>
+  </div>
+  <div class="cols">
+    <div class="panel">
+      <h3>Print</h3>
+      <ul class="check">
+        <li><input type="checkbox" id="p-log"><div><label for="p-log">This page, or at least the <a href="#log">take log</a>, to note which GoPro file is which.</label></div></li>
+        <li><input type="checkbox" id="p-map"><div><label for="p-map">A spare mapping marker: <a href="https://docs.trossenrobotics.com/trumi/_downloads/cf35cfdebb8def553fe510ee018ea50f/marker_13_mapping.pdf" target="_blank" rel="noopener">marker_13_mapping.pdf</a> (ArUco 4×4, ID 13).</label><span class="sub">The kit includes one, so the spare is only a backup. Print on US Letter at <strong>100% / Actual size</strong>, never "Fit to page". The black square must measure <strong>160 mm</strong> edge to edge; I measured the PDF at 160.1 mm. Tape or glue it to something rigid and flat, like foam board.</span></div></li>
+        <li><input type="checkbox" id="p-qr"><div><label for="p-qr">Optional: the <a href="#qr">settings QR code</a>, in case screen glare stops the GoPro reading it off a laptop.</label></div></li>
+        <li><input type="checkbox" id="p-finger"><div><label for="p-finger">Finger markers: nothing to print. They're built into the finger mounts.</label><span class="sub">Replacement PDFs (IDs 0, 1, 6, 7, each 16 mm) are in the <a href="https://docs.trossenrobotics.com/trumi/data_collection.html" target="_blank" rel="noopener">TRumi data collection docs</a> if a mount is damaged.</span></div></li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Pack</h3>
+      <ul class="check">
+        <li><input type="checkbox" id="k-trumi"><div><label for="k-trumi">TRumi gripper(s), assembled</label></div></li>
+        <li><input type="checkbox" id="k-gopro"><div><label for="k-gopro">GoPro HERO13 Black + Ultra Wide Lens Mod</label></div></li>
+        <li><input type="checkbox" id="k-sd"><div><label for="k-sd">microSD card + a card reader for the Mac</label></div></li>
+        <li><input type="checkbox" id="k-batt"><div><label for="k-batt">2+ charged batteries (120 fps drains them fast)</label></div></li>
+        <li><input type="checkbox" id="k-ruler"><div><label for="k-ruler">Ruler in mm, to check the marker is 160 mm</label></div></li>
+        <li><input type="checkbox" id="k-tape"><div><label for="k-tape">Black tape, to add texture to a plain table</label></div></li>
+        <li><input type="checkbox" id="k-task"><div><label for="k-task">Task props: a small block, and tape to mark a target square</label></div></li>
+        <li><input type="checkbox" id="k-mac"><div><label for="k-mac">Mac on Tailscale, charger, a terminal open</label></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="plan">
+  <div class="section-head">
+    <span class="eyebrow">The two hours</span>
+    <h2>Run of show</h2>
+    <p class="muted">Paste this once in the Mac terminal you'll use all session. Every later command relies on it.</p>
+  </div>
+  <div class="cmd"><pre>RTX=ethanwinchell@ethanwinchell.tail79141c.ts.net
+ls /Volumes                                   <span class="c"># find the SD card's name after inserting it</span>
+CARD=/Volumes/&lt;card name&gt;/DCIM/100GOPRO       <span class="c"># edit &lt;card name&gt;</span></pre><button type="button" class="copy">Copy</button></div>
+
+  <article class="block" id="block-a">
+    <div class="time"><span class="letter">A</span><span class="range">0:00 – 0:20</span></div>
+    <div class="body">
+      <h3>Set up the camera</h3>
+      <ul class="check">
+        <li><input type="checkbox" id="a-fw"><div><label for="a-fw">Install Labs firmware: camera off, insert the card with the <code>UPDATE</code> folder, power on. The camera beeps and restarts several times, and it's done when a check mark shows on the front screen.</label><span class="sub">If it fails, pull and reinsert the battery and start over.</span></div></li>
+        <li><input type="checkbox" id="a-lens"><div><label for="a-lens">Attach the Ultra Wide Lens Mod. In <em>Preferences → Lens Mod</em>, turn off automatic detection and choose <strong>Standard</strong>.</label><span class="sub">This stops the GoPro applying its own distortion correction, so the pipeline gets raw frames.</span></div></li>
+        <li id="qr"><input type="checkbox" id="a-qr"><div><label for="a-qr">Tap the QR code to fill the screen, then point the GoPro at it with the camera on its preview screen. Start about 30 cm away and move slowly in or out until the code fills about half of the GoPro's display.</label>
+          <span class="sub">Only Labs firmware reads QR codes, so if nothing happens, first check the firmware step above worked. Turn the screen brightness to maximum and tilt the laptop to get rid of reflections.</span>
+          <div class="qr-row">
+            <button type="button" class="qr" id="qr-open" aria-label="Show the settings QR code full screen"><img src="img/settings_qr_v2.png" alt="GoPro Labs QR code that applies the Labs-Trumi preset: 2.7K 4:3 at 120 fps, Wide lens, HyperSmooth off, flat color"></button>
+            <div class="qr-actions"><button type="button" id="qr-open-2">Show full screen</button><span class="sub">Tap anywhere or press Esc to close.</span></div>
+            <div class="note">
+              <strong>Use this QR code, not the one in the GitHub README.</strong>
+              <span>The README's QR sets <code>p60</code> (60 fps). This one, from the official docs site, sets <code>p120</code> (120 fps), which matches the documented settings and Trossen's example footage.</span>
+            </div>
+          </div>
+        </div></li>
+        <li><input type="checkbox" id="a-confirm"><div><label for="a-confirm">The screen should show <strong>Labs-Trumi</strong> with <strong>4:3 | 2.7K | 120 | W</strong>, with HyperSmooth off and a flat color profile.</label>
+          <figure style="max-width:420px"><img src="img/labs_saved.jpg" alt="GoPro rear screen showing the Labs-Trumi preset: 4:3, 2.7K, 120 fps, Wide" loading="lazy"><figcaption>Trossen's photo of a correctly applied preset.</figcaption></figure></div></li>
+        <li><input type="checkbox" id="a-format"><div><label for="a-format">Format the SD card in the camera (Preferences menu).</label><span class="sub">This removes the <code>UPDATE</code> folder. An empty card means every copy step below picks up exactly the clips you want.</span></div></li>
+        <li><input type="checkbox" id="a-mount"><div><label for="a-mount">Mount the GoPro on the TRumi. The trigger should pull smoothly and the fingers should open fully and close fully.</label><span class="sub">For one gripper, use the Gripper 0 finger holders (tags 0 and 1).</span></div></li>
+      </ul>
+    </div>
+  </article>
+
+  <article class="block" id="block-b">
+    <div class="time"><span class="letter">B</span><span class="range">0:20 – 0:35</span></div>
+    <div class="body">
+      <h3>Smoke test: a 10-second clip</h3>
+      <ul class="check">
+        <li><input type="checkbox" id="b-rec"><div><label for="b-rec">Put the mapping marker on the table. Record about 10 s with the marker in view, opening and closing the gripper three times.</label></div></li>
+        <li><input type="checkbox" id="b-check"><div><label for="b-check">Copy the clip to the RTX box and check it:</label>
+          <div class="cmd"><pre>ssh $RTX 'mkdir -p ~/trumi_sessions/smoke'
+rsync -avP $CARD/*.MP4 $RTX:~/trumi_sessions/smoke/
+ssh $RTX '~/trumi/.venv/bin/python ~/trumi_tools/check_clip.py ~/trumi_sessions/smoke/*.MP4'</pre><button type="button" class="copy">Copy</button></div>
+          <span class="sub">It checks camera model, firmware, 2704×2028, about 120 fps, IMU at about 200 Hz, and the share of frames where each finger tag is seen.</span></div></li>
+        <li><input type="checkbox" id="b-pass"><div><label for="b-pass">Pass: every line <span class="pill ok">PASS</span>, and both finger tags at 60% or more.</label><span class="sub">A <span class="pill warn">WARN</span> on the left finger at 60–80% is normal. Trossen's own example gets 70% left and 100% right. A resolution or fps <span class="pill bad">FAIL</span> means the preset didn't apply: scan the QR again.</span></div></li>
+        <li><input type="checkbox" id="b-format"><div><label for="b-format">Format the card again.</label><span class="sub">The pipeline treats the earliest non-mapping clip as the gripper calibration, so a leftover test clip would take its place.</span></div></li>
+      </ul>
+    </div>
+  </article>
+
+  <article class="block" id="block-c">
+    <div class="time"><span class="letter">C</span><span class="range">0:35 – 1:05</span></div>
+    <div class="body">
+      <h3>Record session 1</h3>
+      <p class="muted">A session is one location: a mapping video, a gripper calibration video, then the demos, recorded in that order as separate clips. Fill in the <a href="#log">take log</a> as you go.</p>
+      <ul class="check">
+        <li><input type="checkbox" id="c-scene"><div><label for="c-scene">Set the scene: a table and background with plenty of visual texture, even lighting, and no glare on the marker or fingers.</label><span class="sub">SLAM needs features to track. Trossen's example is a plain wood table dressed with black tape shapes (+, ×, the letters TRUMI, a rectangle). Do the same on any plain surface. Avoid facing blank walls or ceilings.</span></div></li>
+        <li><input type="checkbox" id="c-marker"><div><label for="c-marker">Lay the mapping marker flat where the demos will happen, and check with the ruler that it's 160 mm.</label><span class="sub">The marker fixes the map's origin and scale. A wrong size gives wrong poses.</span></div></li>
+        <li><input type="checkbox" id="c-map"><div><label for="c-map"><strong>Mapping video, 60–90 s</strong> (Trossen's is 62 s). Move slowly and smoothly around the workspace at different heights and angles. Keep the marker in frame most of the time, and go back over areas you've already covered.</label>
+          <div class="figs">
+            <figure><img src="img/map_start.jpg" alt="Mapping video start: marker centered on the textured table" loading="lazy"><figcaption>0 s: starts on the marker</figcaption></figure>
+            <figure><img src="img/map_mid.jpg" alt="Mapping video at 20 s: low angle from the table's side" loading="lazy"><figcaption>20 s: lower angle, from the side</figcaption></figure>
+            <figure><img src="img/map_late.jpg" alt="Mapping video at 50 s: close over the marker" loading="lazy"><figcaption>50 s: closer pass, marker still in view</figcaption></figure>
+          </div></div></li>
+        <li><input type="checkbox" id="c-cal"><div><label for="c-cal"><strong>Gripper calibration, about 15 s</strong> (Trossen's is 14 s). Marker in view, camera fairly still, open the gripper fully and close it fully <strong>5 times</strong>, slowly.</label>
+          <div class="figs">
+            <figure><img src="img/cal_a.jpg" alt="Calibration clip: fingers partly closed, marker in view" loading="lazy"><figcaption>Finger tags sit at the bottom of the frame</figcaption></figure>
+            <figure><img src="img/cal_b.jpg" alt="Calibration clip: fingers closing" loading="lazy"><figcaption>Full close, then full open, five times</figcaption></figure>
+          </div></div></li>
+        <li><input type="checkbox" id="c-remove"><div><label for="c-remove">Remove the mapping marker from the table.</label><span class="sub">Trossen's example demos were recorded with the marker gone. SLAM localizes against the map built in the mapping video.</span></div></li>
+        <li><input type="checkbox" id="c-demos"><div><label for="c-demos"><strong>8–10 demos</strong> of one simple task, such as picking up the block and placing it in the taped square. Each should be 5–15 s (Trossen's are 6–7 s).</label>
+          <span class="sub">Start recording with the camera already facing the table. Move smoothly. My suggestion: hold still for about a second at the start and end of each demo. A demo is dropped if SLAM loses tracking for more than 10 frames (about 0.2 s).</span>
+          <div class="figs">
+            <figure><img src="img/demo_start.jpg" alt="Demo start: gripper open above table, block to the left" loading="lazy"><figcaption>Start: facing the table</figcaption></figure>
+            <figure><img src="img/demo_grasp.jpg" alt="Demo mid: block held between the fingers" loading="lazy"><figcaption>Grasp</figcaption></figure>
+            <figure><img src="img/demo_place.jpg" alt="Demo end: block placed in the taped rectangle" loading="lazy"><figcaption>Place, then hold still</figcaption></figure>
+          </div></div></li>
+        <li><input type="checkbox" id="c-stress"><div><label for="c-stress"><strong>2 deliberately bad demos</strong>, noted in the log: one with fast, jerky motion, and one that starts facing a blank wall before turning to the table.</label><span class="sub">These should come back flagged or dropped. That confirms the report catches bad data before you collect at scale.</span></div></li>
+      </ul>
+    </div>
+  </article>
+
+  <article class="block" id="block-d">
+    <div class="time"><span class="letter">D</span><span class="range">1:05 – 1:25</span></div>
+    <div class="body">
+      <h3>Copy and process</h3>
+      <ul class="check">
+        <li><input type="checkbox" id="d-copy"><div><label for="d-copy">Copy the session to the RTX box and confirm the file count matches the take log:</label>
+          <div class="cmd"><pre>S=2026-09-29_s1
+ssh $RTX "mkdir -p ~/trumi_sessions/$S/raw_videos"
+rsync -avP $CARD/*.MP4 $RTX:~/trumi_sessions/$S/raw_videos/
+ssh $RTX "ls -lh ~/trumi_sessions/$S/raw_videos"</pre><button type="button" class="copy">Copy</button></div>
+          <span class="sub">No renaming needed. The pipeline takes the largest clip as the mapping video and the earliest remaining clip as calibration. It <em>moves</em> files as it works, so the card is your only untouched copy until processing is done.</span></div></li>
+        <li><input type="checkbox" id="d-run"><div><label for="d-run">Run the pipeline and print the report:</label>
+          <div class="cmd"><pre>caffeinate -i ssh $RTX "~/trumi_tools/process_session.sh ~/trumi_sessions/$S &gt; ~/trumi_sessions/$S.log 2&gt;&amp;1; sed -n '/SESSION REPORT/,\$p' ~/trumi_sessions/$S.log"</pre><button type="button" class="copy">Copy</button></div>
+          <span class="sub">Trossen's example (62 s mapping, 2 demos) took 7 minutes. Expect 10–15 minutes for 10–12 demos. <code>caffeinate</code> keeps the Mac awake so the SSH session doesn't drop. While it runs, start setting up block E.</span></div></li>
+        <li><input type="checkbox" id="d-read"><div><label for="d-read">Compare the report with the <a href="#criteria">pass criteria</a>. For anything that fails, use <a href="#fixes">When something fails</a>.</label></div></li>
+        <li><input type="checkbox" id="d-format"><div><label for="d-format">Once the report shows the dataset was written, format the card for session 2.</label></div></li>
+      </ul>
+    </div>
+  </article>
+
+  <article class="block" id="block-e">
+    <div class="time"><span class="letter">E</span><span class="range">1:25 – 1:50</span></div>
+    <div class="body">
+      <h3>Session 2: fix or vary</h3>
+      <ul class="check">
+        <li><input type="checkbox" id="e-choose"><div><label for="e-choose">If session 1 failed, apply the fix and record a full new session: mapping, calibration, demos. If it passed, change <strong>one</strong> thing: a different table or room, different lighting, a new task, or a second gripper. Five demos is enough.</label></div></li>
+        <li><input type="checkbox" id="e-run"><div><label for="e-run">Copy and process exactly as in block D, with <code>S=2026-09-29_s2</code>.</label><span class="sub">Always use a new session folder. The pipeline has already moved session 1's files.</span></div></li>
+      </ul>
+      <div class="note info">
+        <strong>If session 2 uses two grippers</strong>
+        <span>Set the second gripper up as Gripper 1 using the spare finger holders (tags 6 and 7). Sync timecode on both cameras before recording: run the line below, open <code>http://localhost:8000/index.html</code> on the Mac, and scan the changing QR code with each GoPro.</span>
+        <div class="cmd"><pre>ssh -L 8000:localhost:8000 $RTX 'cd ~/trumi &amp;&amp; uv run python scripts/serve_timecode_sync.py'</pre><button type="button" class="copy">Copy</button></div>
+        <span>Record one calibration clip per gripper. Both cameras name files the same way (<code>GX01…</code>), so copy each card with a prefix to avoid overwriting:</span>
+        <div class="cmd"><pre><span class="c"># card from camera A, then swap cards and repeat with camB</span>
+for f in $CARD/*.MP4; do rsync -aP "$f" "$RTX:~/trumi_sessions/$S/raw_videos/camA_$(basename "$f")"; done</pre><button type="button" class="copy">Copy</button></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="block" id="block-f">
+    <div class="time"><span class="letter">F</span><span class="range">1:50 – 2:00</span></div>
+    <div class="body">
+      <h3>Look at the data and decide</h3>
+      <ul class="check">
+        <li><input type="checkbox" id="f-mcap"><div><label for="f-mcap">Pull one episode and open it in <a href="https://foxglove.dev/download" target="_blank" rel="noopener">Foxglove</a>:</label>
+          <div class="cmd"><pre>scp $RTX:~/trumi_sessions/2026-09-29_s1/dataset_mcap/episode_000000.mcap ~/Downloads/</pre><button type="button" class="copy">Copy</button></div>
+          <span class="sub">Check that <code>/cameras/camera0/image</code> plays, <code>robot0/eef/state</code> follows a smooth path, and <code>robot0/gripper/state</code> width moves between about 0 and about 0.055 m as the gripper closes and opens.</span></div></li>
+        <li><input type="checkbox" id="f-decide"><div><label for="f-decide">Note the results against the criteria and decide whether you're ready to collect at scale, or what to change first.</label></div></li>
+      </ul>
+    </div>
+  </article>
+</section>
+
+<section id="criteria">
+  <div class="section-head">
+    <span class="eyebrow">Pass criteria</span>
+    <h2>What "working" looks like</h2>
+    <p class="muted">Where a threshold comes from the pipeline, the code enforces it. The rest are my targets, based on Trossen's example session processed on the RTX box last night.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Check</th><th>Pass</th><th>Trossen example</th></tr></thead>
+      <tbody>
+        <tr><td>Clip check (block B)</td><td>All PASS; finger tags ≥ 60%</td><td class="num">left 70% · right 100%</td></tr>
+        <tr><td>SLAM map built</td><td>Report shows PASS</td><td class="num">PASS</td></tr>
+        <tr><td>Mapping video tracked</td><td>≥ 90% of frames</td><td class="num">98%</td></tr>
+        <tr><td>Marker calibration</td><td>PASS (<code>tx_slam_tag.json</code> written)</td><td class="num">PASS</td></tr>
+        <tr><td>Gripper range</td><td>Span around 50–60 mm</td><td class="num">66.9–123.7 mm · span 57</td></tr>
+        <tr><td>Lost frames per good demo</td><td>≤ 10 (pipeline drops above that)</td><td class="num">0 and 0</td></tr>
+        <tr><td>Good demos kept</td><td>≥ 80%; both stress demos flagged or dropped</td><td class="num">2 of 2</td></tr>
+        <tr><td>Raw data used (step 06 log)</td><td>≥ 90%</td><td class="num">99%</td></tr>
+        <tr><td>Output</td><td>One <code>.mcap</code> per kept demo</td><td class="num">2 files · 952 MB</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="fixes">
+  <div class="section-head">
+    <span class="eyebrow">Troubleshooting</span>
+    <h2>When something fails</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>You see</th><th>Likely cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Resolution or fps FAIL</td><td>Preset not applied, or the 60 fps README QR was used</td><td>Scan the QR code on this page again and check the screen reads 2.7K | 120</td></tr>
+        <tr><td>IMU FAIL</td><td>Not on Labs firmware</td><td>Reinstall Labs (block A), then scan the QR again</td></tr>
+        <tr><td>Finger tags under 60%</td><td>Glare or shadow on the fingers; dirty or wrong finger holders</td><td>Even out the lighting and clean the mounts. Last resort: <code>TH=0.5</code> before <code>process_session.sh</code>, then check the gripper range still looks right</td></tr>
+        <tr><td><code>MAP FAILED</code>, or mapping tracked under 90%</td><td>Not enough texture, or moving too fast</td><td>Add tape texture, move slower, record a longer mapping video, and redo the whole session</td></tr>
+        <tr><td>Marker calibration FAIL</td><td>Marker not seen enough during mapping</td><td>Keep the marker in frame more, check it's 160 mm, redo mapping</td></tr>
+        <tr><td>Gripper range FAIL, or the wrong clip used for calibration</td><td>A stray clip was recorded before calibration</td><td>Recopy from the card into a new session folder without the stray clip</td></tr>
+        <tr><td>Demo marked <code>BAD</code> (over 10 lost frames)</td><td>Fast motion, looking at blank areas, or starting away from the mapped area</td><td>Slow down, start each demo facing the table, keep the scene textured</td></tr>
+        <tr><td>Pipeline stops partway</td><td>SSH dropped while the Mac slept</td><td>Run the same command again. Finished steps are skipped</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="log">
+  <div class="section-head">
+    <span class="eyebrow">Take log</span>
+    <h2>Which clip is which</h2>
+    <p class="muted">Write the GoPro file number shown in playback, or the <code>GX01xxxx</code> name, next to each take.</p>
+  </div>
+  <div class="table-wrap">
+    <table class="log">
+      <thead><tr><th>#</th><th>Session</th><th>File</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td></td><td></td><td>mapping</td><td></td></tr>
+        <tr><td>2</td><td></td><td></td><td>calibration</td><td></td></tr>
+        <tr><td>3</td><td></td><td></td><td>demo</td><td></td></tr>
+        <tr><td>4</td><td></td><td></td><td>demo</td><td></td></tr>
+        <tr><td>5</td><td></td><td></td><td>demo</td><td></td></tr>
+        <tr><td>6</td><td></td><td></td><td>demo</td><td></td></tr>
+        <tr><td>7</td><td></td><td></td><td>demo</td><td></td></tr>
+        <tr><td>8</td><td></td><td></td><td>demo</td><td></td></tr>
+        <tr><td>9</td><td></td><td></td><td>demo</td><td></td></tr>
+        <tr><td>10</td><td></td><td></td><td>demo</td><td></td></tr>
+        <tr><td>11</td><td></td><td></td><td>stress · fast</td><td></td></tr>
+        <tr><td>12</td><td></td><td></td><td>stress · blank start</td><td></td></tr>
+        <tr><td>13</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>14</td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="reference">
+  <div class="section-head">
+    <span class="eyebrow">Reference</span>
+    <h2>What's on the RTX box</h2>
+  </div>
+  <dl class="kv">
+    <dt>Host</dt><dd><code>ethanwinchell@ethanwinchell.tail79141c.ts.net</code> (Ubuntu 24.04, RTX 5090, 24 cores)</dd>
+    <dt>Pipeline</dt><dd><code>~/trumi</code>, TRumi repo with its Python environment</dd>
+    <dt>SLAM</dt><dd>Docker image <code>orb_slam3:latest</code>, built from <code>~/ORB_SLAM3</code></dd>
+    <dt>Tools</dt><dd><code>~/trumi_tools/check_clip.py</code>, <code>process_session.sh</code>, <code>session_report.py</code></dd>
+    <dt>Sessions</dt><dd><code>~/trumi_sessions/</code>. <code>dryrun_flat</code> is Trossen's example, processed with these tools as a flat card dump (all checks PASS).</dd>
+    <dt>Local fixes</dt><dd>Two upstream bugs are patched locally: marker-ID handling under OpenCV 5 (<code>cv_util.py</code>) and a <code>multimethod&lt;2</code> pin for scikit-fda. Finger-tag thresholds are lowered from 0.8 to 0.6; at 0.6, gripper width still matched Trossen's reference to 0.14 mm.</dd>
+    <dt>Docs</dt><dd><a href="https://docs.trossenrobotics.com/trumi/" target="_blank" rel="noopener">docs.trossenrobotics.com/trumi</a></dd>
+  </dl>
+</section>
+
+</div>
+
+<div class="qr-full" id="qr-full" hidden role="dialog" aria-label="Settings QR code, full screen">
+  <img src="img/settings_qr_v2.png" alt="GoPro Labs QR code that applies the Labs-Trumi preset">
+  <p>Tap anywhere or press Esc to close</p>
+</div>
+
+<script>
+(function () {
+  var KEY = "trumi-validation-2026-09-29";
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('ul.check input[type=checkbox]'));
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { state = {}; }
+
+  function render() {
+    var done = 0;
+    boxes.forEach(function (b) {
+      var li = b.closest("li");
+      if (li) li.classList.toggle("done", b.checked);
+      if (b.checked) done++;
+    });
+    document.getElementById("progress-text").textContent = done + " of " + boxes.length + " steps checked";
+    document.getElementById("progress-bar").style.width = (boxes.length ? (100 * done / boxes.length) : 0) + "%";
+  }
+  function save() {
+    boxes.forEach(function (b) { state[b.id] = b.checked; });
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  boxes.forEach(function (b) {
+    b.checked = !!state[b.id];
+    b.addEventListener("change", function () { save(); render(); });
+  });
+  document.getElementById("reset").addEventListener("click", function () {
+    boxes.forEach(function (b) { b.checked = false; });
+    save(); render();
+  });
+  render();
+
+  var full = document.getElementById("qr-full");
+  function openQr() {
+    full.hidden = false;
+    try { var p = full.requestFullscreen && full.requestFullscreen(); if (p && p.catch) p.catch(function () {}); } catch (e) {}
+  }
+  function closeQr() {
+    full.hidden = true;
+    try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) {}
+  }
+  document.getElementById("qr-open").addEventListener("click", openQr);
+  document.getElementById("qr-open-2").addEventListener("click", openQr);
+  full.addEventListener("click", closeQr);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !full.hidden) closeQr(); });
+  document.addEventListener("fullscreenchange", function () { if (!document.fullscreenElement && !full.hidden) full.hidden = true; });
+
+  document.querySelectorAll(".cmd button.copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pre = btn.parentNode.querySelector("pre");
+      var text = pre.innerText;
+      var done = function (label) { btn.textContent = label; setTimeout(function () { btn.textContent = "Copy"; }, 1400); };
+      var fallback = function () {
+        var r = document.createRange(); r.selectNodeContents(pre);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        done("Selected");
+      };
+      try {
+        navigator.clipboard.writeText(text).then(function () { done("Copied"); }, fallback);
+      } catch (e) { fallback(); }
+    });
+  });
+})();
+</script>
+
+</body></html>
