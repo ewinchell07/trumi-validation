@@ -10,6 +10,37 @@ index e93e8a9..df662aa 100644
      "opencv-python>=4.13.0.92",
      "pandas>=3.0.1",
      "py-gpmf-parser>=0.1.1",
+diff --git a/scripts/scripts_slam_pipeline/03_batch_slam.py b/scripts/scripts_slam_pipeline/03_batch_slam.py
+index 5594db7..25d85eb 100644
+--- a/scripts/scripts_slam_pipeline/03_batch_slam.py
++++ b/scripts/scripts_slam_pipeline/03_batch_slam.py
+@@ -18,6 +18,7 @@ import logging
+ import multiprocessing
+ import pathlib
+ import subprocess
++import uuid
+ 
+ import av
+ import click
+@@ -54,6 +55,9 @@ def runner(cmd, cwd, stdout_path, stderr_path, timeout, **kwargs):
+                 **kwargs,
+             )
+     except subprocess.TimeoutExpired as e:
++        # killing the `docker run` client leaves the container running; stop it by name
++        if cmd[:2] == ["docker", "run"] and "--name" in cmd:
++            subprocess.run(["docker", "kill", cmd[cmd.index("--name") + 1]], capture_output=True)
+         return e
+ 
+ 
+@@ -194,6 +198,8 @@ def main(
+                     "docker",
+                     "run",
+                     "--rm",  # delete after finish
++                    "--name",
++                    f"trumi_slam_{uuid.uuid4().hex[:12]}",  # so a timeout can kill it
+                     "--volume",
+                     str(video_dir) + ":" + "/data",
+                     "--volume",
 diff --git a/scripts/scripts_slam_pipeline/06_generate_dataset_plan.py b/scripts/scripts_slam_pipeline/06_generate_dataset_plan.py
 index aae702e..797987e 100644
 --- a/scripts/scripts_slam_pipeline/06_generate_dataset_plan.py

@@ -53,3 +53,5 @@ mapping video, and each camera's earliest remaining clip is its gripper calibrat
 - `06_generate_dataset_plan.py`: new `--trim_untracked_ends` / `--min_tracked_run`. Each clip is trimmed
   to its SLAM-tracked span before cameras are matched into episodes, so demos that start outside the
   mapped area are kept instead of dropped. Off by default (upstream behaviour unchanged).
+- `03_batch_slam.py`: name each SLAM container and `docker kill` it on timeout. Upstream only kills the
+  `docker run` client, so every timed-out clip left a container running (35 were found two days later).
