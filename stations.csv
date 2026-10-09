@@ -1,0 +1,5 @@
+station,gripper,finger_tag_ids,camera_serial,camera_model,firmware,lens_mod,smoke_test,added,notes
+A,G0,0/1,C3534250043778,HERO13 Black,H24.01.02.10.70,Standard,PASS 2026-09-29,2026-09-29,from experiment record
+A,G1,6/7,C3535424690582,HERO13 Black,H24.01.02.10.70,Standard,PASS 2026-09-29,2026-09-29,from experiment record
+B,G0,0/1,C3535424691374,HERO13 Black,H24.01.02.10.70,Standard,PASS 2026-10-09 (tags 0/1 100%; IMU 198 Hz),2026-10-09,smoke clip /Volumes/Extreme/trumi/sessions/stationB_smoke_2026-10-09/1374_GX010001.MP4
+B,G1,6/7,C3535424685085,HERO13 Black,H24.01.02.10.70,Standard,PASS 2026-10-09 (tags 6/7 100%; IMU 203 Hz; clock = Mac),2026-10-09,smoke clips /Volumes/Extreme/trumi/sessions/stationB_smoke_2026-10-09/5085_GX01000{1,2}.MP4
